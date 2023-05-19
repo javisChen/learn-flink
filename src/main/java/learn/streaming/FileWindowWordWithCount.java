@@ -24,10 +24,12 @@ public class FileWindowWordWithCount {
         //2、配置数据源读取数据
         DataStream<String> text = env.readTextFile("input");
         //3、进行一系列转换
-        DataStream<Tuple2<String, Integer>> counts = text.flatMap(new Tokenizer()).keyBy(0)
+        DataStream<Tuple2<String, Integer>> counts = text.flatMap(new Tokenizer())
+                .keyBy(0)
                 .sum(1);
         //4、配置数据汇写出数据
-        counts.writeAsText("output");
+//        counts.writeAsText("output");
+        counts.print().setParallelism(1);
         //5、提交执行
         env.execute("Streaming WordCount");
 
