@@ -1,19 +1,25 @@
 package learn.streaming;
 
+import akka.stream.impl.fusing.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.util.keys.KeySelectorUtil;
 import org.apache.flink.util.Collector;
+
+import java.util.logging.Logger;
 
 /**
  * 单词计数之滑动窗口计算
  *
  * Created by xuwei.tech
  */
+@Slf4j
 public class SocketWindowWordWithCount {
 
     public static void main(String[] args) throws Exception{
@@ -26,11 +32,12 @@ public class SocketWindowWordWithCount {
             System.err.println("No port set. use default port 9000--Java");
             port = 9000;
         }
+        log.info("监听成功...");
 
         //获取flink的运行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        String hostname = "localhost";
+        String hostname = "192.168.31.21";
         String delimiter = "\n";
         //连接Socket获取输入的数据
         DataStreamSource<String> text = env.socketTextStream(hostname, port, delimiter);
@@ -50,7 +57,13 @@ public class SocketWindowWordWithCount {
                         }
                     }
                 }).keyBy("word")
-                .timeWindow(Time.seconds(2), Time.seconds(1))//指定时间窗口大小为2s，指定时间间隔为1s
+                .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<WordWithCount>() {
+                    @Override
+                    public long extractAscendingTimestamp(WordWithCount wordWithCount) {
+                        return 0;
+                    }
+                })
+                .timeWindowAll(Time.seconds(2), Time.seconds(1))//指定时间窗口大小为2s，指定时间间隔为1s
                 .sum("count");//在这里使用sum或者reduce都可以
         //把数据打印到控制台并且设置并行度
         windowCounts.print().setParallelism(1);
