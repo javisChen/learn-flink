@@ -1,37 +1,33 @@
 package learn.streaming;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.operators.AggregateOperator;
+import org.apache.flink.api.java.operators.DataSource;
+import org.apache.flink.api.java.operators.FlatMapOperator;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
-
-import java.util.StringTokenizer;
 
 /**
  * 单词计数之滑动窗口计算
- * <p>
- * Created by xuwei.tech
  */
-public class FileWindowWordWithCount {
+public class BatchWordCount {
 
     public static void main(String[] args) throws Exception {
         //1、设置运行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         //2、配置数据源读取数据
-        DataStream<String> text = env.readTextFile("input");
+        DataSource<String> text = env.readTextFile("input/word.txt");
         //3、进行一系列转换
-        DataStream<Tuple2<String, Integer>> counts = text.flatMap(new Tokenizer())
-                .keyBy(0)
+        FlatMapOperator<String, Tuple2<String, Integer>> wordAndOne = text.flatMap(new Tokenizer());
+        AggregateOperator<Tuple2<String, Integer>> counts = wordAndOne
+                .groupBy(0)
                 .sum(1);
         //4、配置数据汇写出数据
-//        counts.writeAsText("output");
-        counts.print().setParallelism(1);
-        //5、提交执行
-        env.execute("Streaming WordCount");
+        counts.print();
 
     }
 

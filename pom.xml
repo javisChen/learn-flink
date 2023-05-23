@@ -9,18 +9,20 @@
     <packaging>jar</packaging>
 
     <properties>
+        <flink.version>1.17.0</flink.version>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-java</artifactId>
-            <version>1.14.6</version>
+            <artifactId>flink-streaming-java</artifactId>
+            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_2.11</artifactId>
-            <version>1.14.6</version>
+            <artifactId>flink-clients</artifactId>
+            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -43,11 +45,7 @@
             <version>1.18.24</version>
         </dependency>
 
-        <!--        <dependency>-->
-<!--            <groupId>org.apache.flink</groupId>-->
-<!--            <artifactId>flink-clients</artifactId>-->
-<!--            <version>1.16.1</version>-->
-<!--        </dependency>-->
+
     </dependencies>
     <build>
         <plugins>
@@ -59,25 +57,6 @@
                     <target>8</target>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <version>3.0.0</version>-->
-<!--                <configuration>-->
-<!--                    <descriptionRefs>-->
-<!--                        <descriptionRef>jar-with-dependencies</descriptionRef>-->
-<!--                    </descriptionRefs>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>make-assembly</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            -->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 </project>
