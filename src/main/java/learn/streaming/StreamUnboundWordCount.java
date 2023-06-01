@@ -7,6 +7,9 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.ConfigOptions;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -23,7 +26,10 @@ public class StreamUnboundWordCount {
 
     public static void main(String[] args) throws Exception {
         // 1.创建执行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        Configuration conf = new Configuration();
+        conf.set(RestOptions.BIND_PORT, "8082");
+        StreamExecutionEnvironment env = StreamExecutionEnvironment
+                .getExecutionEnvironment(conf);
 
         // 2.读取数据：从文件读
         DataStreamSource<String> socketDS = env.socketTextStream("192.168.31.21", 7777);
@@ -38,7 +44,7 @@ public class StreamUnboundWordCount {
                             }
                         }
                 )
-                // 解决lambda泛型问题
+                // 解决lambda泛型问题çç
                 .returns(Types.TUPLE(Types.STRING, Types.INT))
                 .keyBy(wordWithCount -> wordWithCount.f0)
                 .sum(1)
